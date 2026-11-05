@@ -1,38 +1,79 @@
-# Previsão de Procura no Retalho: Walmart M5
+# Retail Demand Forecasting — Walmart M5
 
-> Comparação de modelos estatísticos, de Machine Learning, de Deep Learning e foundation models na previsão a 28 dias de 216 produtos da Walmart.
+A comparative time-series forecasting project evaluating statistical, machine-learning, deep-learning, and foundation models on a subset of the Walmart M5 dataset.
 
-**Mestrado em Business Intelligence & Analytics (ISCAP)**, 2025/26
+**Academic context:** MSc in Business Intelligence & Analytics, ISCAP (2025/26)  
+**Authors:** Beatriz Teixeira and João Coelho
 
-## O problema
-Prever as vendas diárias de **216 produtos** (departamento FOODS_1, loja TX_1, Texas) com um horizonte de **28 dias**, igual ao da competição M5. Todos os modelos usam a mesma divisão cronológica e a mesma métrica principal, o **RMSSE**, para a comparação ser justa.
+## Project overview
 
-## Fases
-| Fase | Notebook | Modelos |
+The objective is to forecast daily sales for **216 product series** from the **FOODS_1 department at store TX_1 (Texas)** over a **28-day horizon**. The experiment compares different model families under a shared chronological validation setup, using **Root Mean Squared Scaled Error (RMSSE)** as the primary metric.
+
+This repository documents an academic benchmark on a selected subset of the M5 data; it is not a reproduction of the full competition.
+
+## Experiment design
+
+| Stage | Notebook(s) | Methods evaluated |
 |---|---|---|
-| 1. Estatísticos | `01a`, `01b`, `01c` | Naive, Seasonal Naive, Historic Average, AutoETS, AutoARIMA, AutoARIMAX |
-| 2. Machine Learning | `02` | Linear/Ridge, Random Forest, Extra Trees, XGBoost, LightGBM (multivariados e univariados) |
-| 3. Deep Learning e foundation models | `03` | NHITS, LSTM, AutoNHITS, AutoLSTM, Chronos (Amazon), TimeGPT (Nixtla), AutoGluon |
+| 1. Statistical models | `01a_phase1_baselines.ipynb`, `01b_phase1_ets.ipynb`, `01c_phase1_arima.ipynb` | Naive and seasonal-naive baselines, historical average, AutoETS, AutoARIMA, AutoARIMAX |
+| 2. Machine learning | `02_phase2_machine_learning.ipynb` | Linear/Ridge Regression, Random Forest, Extra Trees, XGBoost, LightGBM; univariate and multivariate approaches |
+| 3. Deep learning and foundation models | `03_phase3_deep_learning.ipynb` | NHITS, LSTM, AutoNHITS, AutoLSTM, Chronos, TimeGPT, AutoGluon |
 
-## Resultados (validação, RMSSE: quanto menor, melhor)
-| Modelo | Família | RMSSE |
-|---|---|---|
-| **AutoARIMAX** | Estatístico | **0,744** |
-| AutoETS | Estatístico | 0,746 |
-| TimeGPT (univariado) | Foundation model | 0,747 |
-| XGBoost (univariado) | Machine Learning | 0,750 |
-| Seasonal Naive | Baseline | 0,956 |
+All model families are compared using the same forecast horizon and validation period. Lower RMSSE values indicate better performance.
 
-**Conclusão:** um modelo estatístico bem especificado (AutoARIMAX, com variáveis exógenas) bateu modelos muito mais complexos. Em séries de retalho intermitentes, a complexidade nem sempre compensa. A tabela completa está em `results/final_results.csv`.
+## Selected validation results
 
-## Stack
-`statsforecast` · `mlforecast` · `scikit-learn` · `XGBoost` · `LightGBM` · `neuralforecast` · `Chronos` · `TimeGPT` · `AutoGluon` · `PyTorch`
+| Model | Model family | RMSSE |
+|---|---|---:|
+| **AutoARIMAX** | Statistical | **0.7443** |
+| AutoETS | Statistical | 0.7457 |
+| TimeGPT (univariate) | Foundation model | 0.7470 |
+| XGBoost (univariate) | Machine learning | 0.7498 |
+| Seasonal Naive | Baseline | 0.9560 |
 
-## Como correr
-Os notebooks foram feitos no Google Colab, com os dados no Google Drive.
-1. Descarrega os dados da [competição M5 no Kaggle](https://www.kaggle.com/competitions/m5-forecasting-accuracy).
-2. Ajusta o caminho do Drive na secção de configuração de cada notebook.
-3. O TimeGPT precisa de uma chave da Nixtla, definida na variável de ambiente `NIXTLA_API_KEY` e nunca escrita no código. Esse bloco pode ser desligado nas *Execution Flags*.
+The complete results table is available in [`results/final_results.csv`](results/final_results.csv).
 
-## Autores
-Beatriz Teixeira · João Coelho
+### Main finding
+
+AutoARIMAX achieved the lowest RMSSE among the evaluated models. The result illustrates an important practical point: more complex architectures do not necessarily outperform well-specified statistical models, particularly when forecasting retail series with challenging demand patterns.
+
+## Repository structure
+
+```text
+.
+├── notebooks/
+│   ├── 01a_phase1_baselines.ipynb
+│   ├── 01b_phase1_ets.ipynb
+│   ├── 01c_phase1_arima.ipynb
+│   ├── 02_phase2_machine_learning.ipynb
+│   └── 03_phase3_deep_learning.ipynb
+└── results/
+    └── final_results.csv
+```
+
+## Technology stack
+
+- **Data analysis:** Python, pandas, scikit-learn
+- **Statistical forecasting:** StatsForecast
+- **Machine learning:** MLForecast, XGBoost, LightGBM
+- **Deep learning:** NeuralForecast, PyTorch
+- **Foundation models and AutoML:** Chronos, TimeGPT, AutoGluon
+- **Environment:** Google Colab
+
+## Reproducing the experiments
+
+The notebooks were developed for Google Colab and expect the source data to be made available separately.
+
+1. Download the required files from the [Kaggle M5 Forecasting Accuracy competition](https://www.kaggle.com/competitions/m5-forecasting-accuracy).
+2. Upload or mount the dataset in Google Drive.
+3. Update the dataset paths in the notebook configuration cells.
+4. Run the notebooks in sequence, following the phase numbering.
+
+**Optional API dependency:** the TimeGPT experiment requires a Nixtla API key. Store it in the `NIXTLA_API_KEY` environment variable; do not hard-code credentials in a notebook. The TimeGPT section can be skipped if the API is unavailable.
+
+## Scope and limitations
+
+- The analysis focuses on 216 product series from one department and one store.
+- Results are specific to the selected validation period and experimental configuration.
+- Re-running API-based or library-based models may produce different results depending on package versions, service availability, and model defaults.
+- The reported metrics should be interpreted as an academic comparison on this subset, not as a claim about performance across the entire M5 competition dataset.
